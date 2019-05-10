@@ -40,8 +40,7 @@ public class UserController {
 
 
     @RequestMapping(value = "/{uid}", method = RequestMethod.GET)
-    public User getUser(@RequestParam(value = "uid") String uid) {
-
+    public User getUser(@PathVariable("uid") String uid) {
         User user = userService.getUserByUid(uid);
         if (user != null){
             return user;
@@ -51,7 +50,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/{uid}/groups", method = RequestMethod.GET)
-    public List<Group> getGroupsByUid(@RequestParam(value = "uid") String uid){
+    public List<Group> getGroupsByUid(@PathVariable(value = "uid") String uid){
         return userService.getGroupsByUid(uid);
     }
 }

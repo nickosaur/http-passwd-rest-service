@@ -1,17 +1,18 @@
 package org.springframework.httprestservice.model;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Group {
     private String name;
-    private Integer gid;
+    private BigInteger gid;
     private List<String> members;
 
     public Group(){}
 
-    public Group(String name, Integer gid, List<String> members){
+    public Group(String name, BigInteger gid, List<String> members){
         this.name = name;
         this.gid = gid;
         this.members = members;
@@ -21,7 +22,7 @@ public class Group {
         return this.name;
     }
 
-    public Integer getGid(){
+    public BigInteger getGid(){
         return this.gid;
     }
 
@@ -33,7 +34,7 @@ public class Group {
         this.name = name;
     }
 
-    public void setGid(Integer gid){
+    public void setGid(BigInteger gid){
         this.gid = gid;
     }
 
@@ -51,7 +52,14 @@ public class Group {
 
         // gid comparison
         if (options[1].length() != 0){
-            if(!this.getGid().equals(options[1])) {
+            BigInteger _gid;
+            try{
+                _gid = new BigInteger(options[1]);
+            } catch (Exception e){
+                System.out.println("Gid is not in numbers");
+                return false;
+            }
+            if(!this.getGid().equals(_gid)) {
                 return false;
             }
         }

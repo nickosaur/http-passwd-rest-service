@@ -1,33 +1,64 @@
 package org.springframework.httprestservice.repository;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.httprestservice.model.Group;
 import org.springframework.httprestservice.model.User;
 import org.springframework.stereotype.Repository;
-import org.springframework.httprestservice.constant.Constant;
 
 @Repository
 public class UserRepository {
     private List<User> users;
     private String passwd;
+    private Properties prop;
     private Date lastLoad = new Date(0L);
+
+    @Autowired
     private GroupRepository groupRepository;
 
     public UserRepository() {
-        users = new ArrayList<User>();
-        if (Constant.defaultFile == true){
-            this.passwd = Constant.defaultPasswd;
-        } else {
-            this.passwd = Constant.systemPasswd;
+
+        prop = new Properties();
+        InputStream input = null;
+
+        try {
+            input = new FileInputStream("./app.properties");
+
+            // load the properties file
+            prop.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            // if fails to load properties file will hard load the default passwd file
+            this.passwd = "./data/passwd";
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        if(!checkIfValidPasswd(passwd)){
+
+        if (prop.getProperty("custom").equals("true")){
+            this.passwd = prop.getProperty("custom_passwd");
+        } else {
+            this.passwd = prop.getProperty("default_passwd");
+        }
+
+        System.out.println("passwd is " + passwd);
+        users = new ArrayList<User>();
+
+        if(!checkIfValidPasswd(this.passwd)){
             // we will use our default passwd file
-            this.passwd = Constant.defaultPasswd;
+            this.passwd = prop.getProperty("default_passwd");
         }
         loadPasswd(this.passwd);
     }
@@ -36,7 +67,7 @@ public class UserRepository {
 
         if (checkForUpdates(this.passwd)){
             if (checkIfValidPasswd(this.passwd)){
-                this.passwd = Constant.defaultPasswd;
+                this.passwd = prop.getProperty("default_passwd");
             }
             loadPasswd(this.passwd);
         }
@@ -47,14 +78,14 @@ public class UserRepository {
 
         if (checkForUpdates(this.passwd)){
             if (checkIfValidPasswd(this.passwd)){
-                this.passwd = Constant.defaultPasswd;
+                this.passwd = prop.getProperty("default_passwd");
             }
             loadPasswd(this.passwd);
         }
 
-        Integer id;
+        BigInteger id;
         try {
-            id = Integer.valueOf(uid);
+            id = new BigInteger(uid);
         } catch (Exception e){
             System.err.println(uid + " is not in numbers");
             return null;
@@ -73,7 +104,7 @@ public class UserRepository {
 
         if (checkForUpdates(this.passwd)){
             if (checkIfValidPasswd(this.passwd)){
-                this.passwd = Constant.defaultPasswd;
+                this.passwd = prop.getProperty("default_passwd");
             }
             loadPasswd(this.passwd);
         }
@@ -101,20 +132,20 @@ public class UserRepository {
         String readLine = "";
         try {
             while ((readLine = buffer.readLine()) != null) {
-                System.out.println(readLine);
+
                 if (readLine.length() == 0){
                     continue;
                 }
                 String[] fields = readLine.split(":", -1);
                 User user = new User();
                 user.setName(fields[0]);
-                Integer uid = Integer.valueOf(fields[2]);
+                BigInteger uid = new BigInteger(fields[2].trim());
                 user.setUid(uid);
-                int gid = Integer.valueOf(fields[3]);
+                BigInteger gid = new BigInteger(fields[3].trim());
                 user.setGid(gid);
                 user.setComment(fields[4]);
-                user.setHome(fields[5]);
-                user.setShell(fields[6]);
+                user.setHome(fields[5].trim());
+                user.setShell(fields[6].trim());
                 boolean result = this.users.add(user);
             }
         } catch (Exception e){ // will not be reached
@@ -161,7 +192,7 @@ public class UserRepository {
                     return false;
                 }
                 try {
-                    Integer uid = Integer.valueOf(fields[2]);
+                    BigInteger uid = new BigInteger(fields[2].trim());
                 }
                 catch (Exception e){
                     System.out.println("Error : uid must be in numbers");
@@ -169,7 +200,7 @@ public class UserRepository {
                 }
 
                 try {
-                    Integer gid = Integer.valueOf(fields[3]);
+                    BigInteger gid = new BigInteger(fields[3].trim());
                 }
                 catch (Exception e){
                     System.out.println("Error : gid must be in numbers");
@@ -184,7 +215,12 @@ public class UserRepository {
     }
 
     public List<Group> getGroupsByUid(String uid){
-        return groupRepository.getGroupsByUserName((this.getUserByUid(uid)).getName());
+        System.out.println("getgroupbyuid " + uid);
+        User user = this.getUserByUid(uid);
+        String userName = user.getName();
+        System.out.println("userName is " + userName);
+        //groupRepository = new Gr
+        return groupRepository.getGroupsByUserName(userName);
     }
 
 

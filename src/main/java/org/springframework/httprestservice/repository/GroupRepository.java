@@ -1,32 +1,53 @@
 package org.springframework.httprestservice.repository;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.httprestservice.model.Group;
-import org.springframework.httprestservice.model.User;
 import org.springframework.stereotype.Repository;
-import org.springframework.httprestservice.constant.Constant;
 
 @Repository
 public class GroupRepository {
     private List<Group> groups;
     private String groupFile;
+    private Properties prop;
     private Date lastLoad = new Date(0L);
 
     public GroupRepository(){
-        groups = new ArrayList<Group>();
-        if (Constant.defaultFile == true){
-            this.groupFile = Constant.defaultGroup;
-        } else {
-            this.groupFile = Constant.systemGroup;
+
+        prop = new Properties();
+        InputStream input = null;
+
+        try {
+            input = new FileInputStream("./app.properties");
+
+            // load the properties file
+            prop.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            // if fails to load properties file will hard load the default passwd file
+            this.groupFile = "./data/group";
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
+        if (prop.getProperty("custom").equals("true")){
+            this.groupFile = prop.getProperty("custom_group");
+        } else {
+            this.groupFile = prop.getProperty("default_group");
+        }
+
+        groups = new ArrayList<Group>();
         //TODO check if valid and loadGroup
         if(!checkIfValidGroup(this.groupFile)){
-            this.groupFile = Constant.defaultGroup;
+            this.groupFile = prop.getProperty("default_group");
         }
         loadGroup(this.groupFile);
     }
@@ -34,7 +55,7 @@ public class GroupRepository {
     public List<Group> getGroups(){
         if (checkForUpdates(this.groupFile)){
             if (checkIfValidGroup(this.groupFile)){
-                this.groupFile = Constant.defaultPasswd;
+                this.groupFile = prop.getProperty("default_group");
             }
             loadGroup(this.groupFile);
         }
@@ -44,13 +65,13 @@ public class GroupRepository {
     public Group getGroupByGid(String gid){
         if (checkForUpdates(this.groupFile)){
             if (checkIfValidGroup(this.groupFile)){
-                this.groupFile = Constant.defaultPasswd;
+                this.groupFile = prop.getProperty("default_group");
             }
             loadGroup(this.groupFile);
         }
-        Integer _gid;
+        BigInteger _gid;
         try{
-            _gid = Integer.valueOf(gid);
+            _gid = new BigInteger(gid);
         } catch (Exception e){
             System.err.println(gid + " is not in numbers");
             return null;
@@ -67,7 +88,7 @@ public class GroupRepository {
     public List<Group> getGroupsByOptions(String[] options, String[] members){
         if (checkForUpdates(this.groupFile)){
             if (checkIfValidGroup(this.groupFile)){
-                this.groupFile = Constant.defaultPasswd;
+                this.groupFile = prop.getProperty("default_group");
             }
             loadGroup(this.groupFile);
         }
@@ -75,10 +96,15 @@ public class GroupRepository {
     }
 
     public List<Group> getGroupsByUserName(String userName){
+        System.out.println("GroupRepo " + userName);
         List<Group> filtered = new ArrayList<Group>();
         for (Group grp : this.groups){
-            if(grp.getMembers().contains(userName)){
-                filtered.add(grp);
+            List<String> members = grp.getMembers();
+            for (String member : members){
+                if (member.equals(userName)){
+                    filtered.add(grp);
+                    break;
+                }
             }
         }
         return filtered;
@@ -110,12 +136,15 @@ public class GroupRepository {
                 }
                 String[] fields = readLine.split(":", -1);
                 Group grp = new Group();
-                grp.setName(fields[0]);
-                Integer gid = Integer.valueOf(fields[2]);
+                grp.setName(fields[0].trim());
+                BigInteger gid = new BigInteger(fields[2].trim());
                 grp.setGid(gid);
                 String[] members = fields[3].split(",");
                 List<String> memberList = new ArrayList<>(members.length);
-                Collections.addAll(memberList, members);
+
+                for (String member : members){
+                    memberList.add(member.trim());
+                }
                 grp.setMembers(memberList);
 
                 boolean result = this.groups.add(grp);
@@ -165,7 +194,7 @@ public class GroupRepository {
                     return false;
                 }
                 try {
-                    Integer uid = Integer.valueOf(fields[2]);
+                    BigInteger gid = new BigInteger(fields[2].trim());
                 }
                 catch (Exception e){
                     System.out.println("Error : gid must be in numbers");

@@ -1,9 +1,11 @@
 package org.springframework.httprestservice.model;
 
+import java.math.BigInteger;
+
 public class User {
     private String name;
-    private Integer uid;
-    private Integer gid;
+    private BigInteger uid;
+    private BigInteger gid;
     private String comment;
     private String home;
     private String shell;
@@ -12,7 +14,7 @@ public class User {
     public User(){
     }
 
-    public User(String name, Integer uid, Integer gid, String comment, String home, String shell) {
+    public User(String name, BigInteger uid, BigInteger gid, String comment, String home, String shell) {
         this.name = name;
         this.uid = uid;
         this.gid = gid;
@@ -32,7 +34,13 @@ public class User {
 
         // uid comparison
         if (options[1].length() != 0){
-            Integer _uid = Integer.valueOf(options[1]);
+            BigInteger _uid;
+            try{
+                _uid = new BigInteger(options[1]);
+            } catch (Exception e){
+                System.out.println("Uid is not in numbers");
+                return false;
+            }
             if(!this.getUid().equals(_uid) ) {
                 return false;
             }
@@ -40,7 +48,13 @@ public class User {
 
         // gid comparison
         if (options[2].length() != 0){
-            Integer _gid = Integer.valueOf(options[2]);
+            BigInteger _gid;
+            try{
+                _gid = new BigInteger(options[2]);
+            } catch (Exception e){
+                System.out.println("Gid is not in numbers");
+                return false;
+            }
             if(!this.getGid().equals(_gid)) {
                 return false;
             }
@@ -74,11 +88,11 @@ public class User {
         return this.name;
     }
 
-    public Integer getUid() {
+    public BigInteger getUid() {
         return this.uid;
     }
 
-    public Integer getGid() {
+    public BigInteger getGid() {
         return this.gid;
     }
 
@@ -98,11 +112,11 @@ public class User {
         this.name = name;
     }
 
-    public void setUid(Integer uid){
+    public void setUid(BigInteger uid){
         this.uid = uid;
     }
 
-    public void setGid(Integer gid){
+    public void setGid(BigInteger gid){
         this.gid = gid;
     }
 

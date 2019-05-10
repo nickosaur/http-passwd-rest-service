@@ -12,6 +12,7 @@ import java.net.URL;
 public class HttpRestServiceApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(HttpRestServiceApplication.class, args);
 	}
 }
