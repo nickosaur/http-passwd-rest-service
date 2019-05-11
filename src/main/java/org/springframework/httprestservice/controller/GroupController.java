@@ -14,7 +14,7 @@ import java.util.List;
 public class GroupController {
 
     @Autowired
-    private GroupService groupService;
+    private GroupService groupService = new GroupService();
 
     @GetMapping
     public List<Group> getGroups(){

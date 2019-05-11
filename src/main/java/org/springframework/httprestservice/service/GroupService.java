@@ -11,7 +11,7 @@ import java.util.List;
 public class GroupService {
 
     @Autowired
-    private GroupRepository groupRepository;
+    private GroupRepository groupRepository = new GroupRepository();
 
     public List<Group> getGroups(){
         return groupRepository.getGroups();

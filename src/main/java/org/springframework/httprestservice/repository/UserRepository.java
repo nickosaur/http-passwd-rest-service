@@ -53,7 +53,6 @@ public class UserRepository {
             this.passwd = prop.getProperty("default_passwd");
         }
 
-        System.out.println("passwd is " + passwd);
         users = new ArrayList<User>();
 
         if(!checkIfValidPasswd(this.passwd)){
@@ -215,11 +214,9 @@ public class UserRepository {
     }
 
     public List<Group> getGroupsByUid(String uid){
-        System.out.println("getgroupbyuid " + uid);
         User user = this.getUserByUid(uid);
         String userName = user.getName();
-        System.out.println("userName is " + userName);
-        //groupRepository = new Gr
+        groupRepository = new GroupRepository();
         return groupRepository.getGroupsByUserName(userName);
     }
 

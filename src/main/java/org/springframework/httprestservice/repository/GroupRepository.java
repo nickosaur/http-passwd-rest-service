@@ -37,7 +37,6 @@ public class GroupRepository {
                 }
             }
         }
-
         if (prop.getProperty("custom").equals("true")){
             this.groupFile = prop.getProperty("custom_group");
         } else {
@@ -130,7 +129,6 @@ public class GroupRepository {
         String readLine = "";
         try {
             while ((readLine = buffer.readLine()) != null) {
-                System.out.println(readLine);
                 if (readLine.length() == 0){
                     continue;
                 }

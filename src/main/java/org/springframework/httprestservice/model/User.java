@@ -62,7 +62,7 @@ public class User {
 
         // comment comparison
         if (options[3].length() != 0){
-            if(!this.getName().equals(options[0])) {
+            if(!this.getComment().equals(options[3])) {
                 return false;
             }
         }

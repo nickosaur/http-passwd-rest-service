@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserService userService = new UserService();
 
     @GetMapping
     public List<User> getUsers() {
