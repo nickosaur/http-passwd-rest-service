@@ -24,7 +24,6 @@ public class UserRepository {
     private GroupRepository groupRepository;
 
     public UserRepository() {
-
         prop = new Properties();
         InputStream input = null;
 
